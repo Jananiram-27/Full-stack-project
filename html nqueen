@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Queens Visualizer</title>
+    <link rel="stylesheet" href="c.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to N-Queens Puzzle</h1>
+    </header>
+    <main>
+        <div class="welcome">
+            <h2>Enter the number of Queens</h2>
+            <input type="number" id="queenCount" min="4" max="20" value="4">
+            <button id="startButton">Start</button>
+        </div>
+        <div id="chessBoard" class="hidden"></div>
+        <div id="removeButtonContainer" class="hidden">
+            <button id="removeButton">Remove Queen</button>
+        </div>
+        <div class="queen-icon-container hidden">
+            <div id="queenIcon" class="draggable-queen"></div>
+        </div>
+        <div class="buttons hidden">
+            <button id="resetButton">Reset</button>
+            <button id="showAllSolutionsButton">Show All Solutions</button>
+        </div>
+        <div id="solutionInfo" class="hidden">
+            <p id="solutionCount"></p>
+        </div>
+        <div id="allSolutionsContainer" class="hidden"></div>
+        <div id="messageContainer" class="hidden"></div> 
+    </main>
+    <script src="j.js"></script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+const queenSize = 50;
+let solutions = [];
+let currentSolutionIndex = 0;
+let queenCount = 4;
+let boardSize = 4;
+let queensPlaced = 0;
+let selectedQueen = null;
+
+document.getElementById('startButton').addEventListener('click', function () {
+    queenCount = parseInt(document.getElementById('queenCount').value);
+    if (queenCount < 4 || queenCount > 20) {
+        alert("Please enter a value between 4 and 20.");
+        return;
+    }
+    boardSize = queenCount;
+    const nQueens = new NQueens(queenCount);
+    solutions = nQueens.solveNQueens();
+    currentSolutionIndex = 0;
+    queensPlaced = 0;
+    displayTotalSolutions(solutions.length);
+    if (solutions.length > 0) {
+        displayBoard(boardSize);
+        document.querySelector('.buttons').classList.remove('hidden');
+        document.querySelector('.queen-icon-container').classList.remove('hidden');
+        document.getElementById('removeButtonContainer').classList.remove('hidden');
+        document.getElementById('solutionInfo').classList.remove('hidden');
+        document.querySelector('.instructions').classList.remove('hidden');
+        document.querySelector('.welcome').classList.add('hidden');
+        document.getElementById('messageContainer').classList.add('hidden');
+    } else {
+        alert("No solutions found.");
+    }
+});
+
+document.getElementById('resetButton').addEventListener('click', function () {
+    document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = '');
+    queensPlaced = 0;
+    document.getElementById('messageContainer').classList.add('hidden');
+});
+
+document.getElementById('showAllSolutionsButton').addEventListener('click', function () {
+    displayAllSolutions(solutions);
+});
+
+document.getElementById('removeButton').addEventListener('click', function () {
+    if (selectedQueen) {
+        removeQueen(selectedQueen.row, selectedQueen.col);
+        selectedQueen = null;
+    } else {
+        alert('No queen selected for removal.');
+    }
+});
+
+function displayBoard(size) {
+    const board = document.getElementById('chessBoard');
+    board.innerHTML = '';
+    board.style.gridTemplateColumns = `repeat(${size}, ${queenSize}px)`;
+    board.style.gridTemplateRows = `repeat(${size}, ${queenSize}px)`;
+    board.classList.remove('hidden');
+
+    for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            if ((row + col) % 2 === 0) {
+                cell.classList.add('white');
+            } else {
+                cell.classList.add('black');
+            }
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            cell.addEventListener('click', function () {
+                if (cell.querySelector('.queen')) {
+                    selectQueen(cell);
+                }
+            });
+            board.appendChild(cell);
+        }
+    }
+
+    initializeDragAndDrop(size);
+}
+
+function initializeDragAndDrop(size) {
+    const board = document.getElementById('chessBoard');
+    const queenIcon = document.getElementById('queenIcon');
+
+    queenIcon.setAttribute('draggable', true);
+
+    queenIcon.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', 'queen');
+    });
+
+    board.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+
+    board.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const rect = board.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const col = Math.floor(x / queenSize);
+        const row = Math.floor(y / queenSize);
+
+        if (isValidQueenPosition(row, col, size)) {
+            placeQueen(row, col, size);
+        } else {
+            highlightInvalidPosition(row, col);
+            displayFailureMessage(); 
+        }
+    });
+}
+
+function isValidQueenPosition(row, col, size) {
+    const cells = document.getElementById('chessBoard').getElementsByClassName('cell');
+    let isValid = true;
+
+    
+    for (let i = 0; i < size; i++) {
+        if (cells[row * size + i].querySelector('.queen') || cells[i * size + col].querySelector('.queen')) {
+            isValid = false;
+            break;
+        }
+    }
+
+    
+    for (let i = -size; i < size; i++) {
+        const diag1 = row + i;
+        const diag2 = col + i;
+        if (diag1 >= 0 && diag1 < size && diag2 >= 0 && diag2 < size) {
+            if (cells[diag1 * size + diag2].querySelector('.queen') ||
+                cells[(row + i) * size + (col - i)].querySelector('.queen')) {
+                isValid = false;
+                break;
+            }
+        }
+    }
+
+    return isValid;
+}
+
+function placeQueen(row, col, size) {
+    const cell = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+    if (!cell.querySelector('.queen')) {
+        const queen = document.createElement('div');
+        queen.classList.add('queen');
+        queen.classList.add('draggable-queen');
+        cell.appendChild(queen);
+        queensPlaced++;
+        if (queensPlaced === size) {
+            displayCongratulationsMessage();
+        }
+    }
+}
+
+function highlightInvalidPosition(row, col) {
+    const cell = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+    cell.classList.add('invalid-position');
+    setTimeout(() => {
+        cell.classList.remove('invalid-position');
+    }, 1000);
+}
+
+function selectQueen(cell) {
+    const queens = document.querySelectorAll('.queen');
+    queens.forEach(queen => queen.classList.remove('selected'));
+    const queen = cell.querySelector('.queen');
+    queen.classList.add('selected');
+    selectedQueen = {
+        row: parseInt(cell.dataset.row),
+        col: parseInt(cell.dataset.col)
+    };
+}
+
+function removeQueen(row, col) {
+    const cell = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+    if (cell.querySelector('.queen')) {
+        cell.innerHTML = '';
+        queensPlaced--;
+    }
+}
+
+function displayAllSolutions(solutions) {
+    const container = document.getElementById('allSolutionsContainer');
+    container.innerHTML = '';
+    container.classList.remove('hidden');
+
+    const size = solutions[0].length;
+    const numColumns = 3; 
+
+    container.style.gridTemplateColumns = `repeat(${numColumns}, auto)`;
+
+    solutions.forEach((solution) => {
+        const board = document.createElement('div');
+        board.classList.add('chessBoard');
+        board.style.display = 'grid';
+        board.style.gridTemplateColumns = `repeat(${size}, ${queenSize}px)`;
+        board.style.gridTemplateRows = `repeat(${size}, ${queenSize}px)`;
+
+        for (let row = 0; row < size; row++) {
+            for (let col = 0; col < size; col++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                if ((row + col) % 2 === 0) {
+                    cell.classList.add('white');
+                } else {
+                    cell.classList.add('black');
+                }
+                if (solution[row][col] === 1) {
+                    const queen = document.createElement('div');
+                    queen.classList.add('queen');
+                    queen.style.width = `${queenSize}px`;
+                    queen.style.height = `${queenSize}px`;
+                    queen.style.backgroundImage = 'url("queen.png")'; 
+                    queen.style.backgroundSize = 'cover';
+                    queen.style.backgroundRepeat = 'no-repeat';
+                    queen.style.backgroundPosition = 'center';
+                    cell.appendChild(queen);
+                }
+                board.appendChild(cell);
+            }
+        }
+        container.appendChild(board);
+    });
+}
+
+
+function displayTotalSolutions(count) {
+    document.getElementById('solutionCount').innerText = `Total Solutions: ${count}`;
+}
+
+function displayCongratulationsMessage() {
+    const messageContainer = document.getElementById('messageContainer');
+    messageContainer.innerHTML = '<div class="congratulation-message">Congratulations! All queens are placed correctly!</div>';
+    messageContainer.classList.remove('hidden');
+}
+
+function displayFailureMessage() {
+    const messageContainer = document.getElementById('messageContainer');
+    messageContainer.innerHTML = '<div class="failure-message">Error: Invalid position for queen!</div>';
+    messageContainer.classList.remove('hidden');
+}
+
+
+class NQueens {
+    constructor(size) {
+        this.size = size;
+        this.solutions = [];
+        this.board = Array(size).fill().map(() => Array(size).fill(0));
+    }
+
+    solveNQueens() {
+        this.solve(0);
+        return this.solutions;
+    }
+
+    solve(row) {
+        if (row === this.size) {
+            this.solutions.push(this.board.map(row => row.slice()));
+            return;
+        }
+
+        for (let col = 0; col < this.size; col++) {
+            if (this.isSafe(row, col)) {
+                this.board[row][col] = 1;
+                this.solve(row + 1);
+                this.board[row][col] = 0;
+            }
+        }
+    }
+
+    isSafe(row, col) {
+        for (let i = 0; i < row; i++) {
+            if (this.board[i][col]) return false;
+        }
+
+        for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) {
+            if (this.board[i][j]) return false;
+        }
+
+        for (let i = row, j = col; i >= 0 && j < this.size; i--, j++) {
+            if (this.board[i][j]) return false;
+        }
+
+        return true;
+    }
+}

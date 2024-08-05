@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f8ff;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 2em;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.welcome {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#chessBoard {
+    display: grid;
+    gap: 1px;
+    margin-top: 20px;
+    position: relative; 
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+}
+
+.cell.white {
+    background-color: #f9f9f9;
+}
+
+.cell.black {
+    background-color: #c1c1c1;
+}
+
+.draggable-queen {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-image: url('queen.png'); 
+    background-size: cover;
+    background-position: center;
+}
+
+.buttons {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    margin: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.hidden {
+    display: none;
+}
+
+.instructions {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+#allSolutionsContainer {
+    display: grid;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+#messageContainer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.congratulation-message,
+.failure-message {
+    display: inline-block;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid black;
+    border-radius: 10px;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    z-index: 10;
+}
+
+.congratulation-message {
+    color: #4CAF50;
+    background-color: #dff0d8;
+}
+
+.failure-message {
+    color: #f44336;
+    background-color: #f8d7da;
+}
+
+#removeButtonContainer {
+    margin-top: 20px;
+}
